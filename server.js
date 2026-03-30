@@ -19,17 +19,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(express.static("public")); // 👈 antes de tudo
+
 app.use("/uploads", express.static("uploads"));
-app.get("/", function(req, res) {
-    res.json({ message: "API rodando com sucesso" });
-});
 
 app.use("/api/admin", adminRoutes);
 app.use("/api/site-content", siteContentRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/contact", contactRoutes);
-
 app.use("/api/upload", uploadRoutes);
+
 
 const PORT = process.env.PORT || 10000;
 
