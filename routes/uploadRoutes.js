@@ -17,8 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/", upload.single("imagem"), function(req, res) {
-    const url = "http://localhost:3001/uploads/" + req.file.filename;
-
+    const url = "/uploads/" + req.file.filename;
     res.json({ url });
 });
 
