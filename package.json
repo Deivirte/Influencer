@@ -2,10 +2,10 @@
     "name": "backend-site-admin",
     "version": "1.0.0",
     "description": "Backend Node + Mongo para site editável",
-    "main": "servidor.js",
+    "main": "server.js",
     "scripts": {
-        "dev": "nodemon servidor.js",
-        "start": "node servidor.js",
+        "dev": "nodemon server.js",
+        "start": "node server.js",
         "seed-admin": "node seedAdmin.js"
     },
     "dependencies": {
