@@ -1,7 +1,7 @@
 /* =========================
    CONFIG
 ========================= */
-const API_URL = "https://backend-production.up.railway.app/api";
+const API_URL = "https://influencer-production.up.railway.app/api";
 let token = localStorage.getItem("token");
 let campoAtual = null;
 
