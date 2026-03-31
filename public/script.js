@@ -1,7 +1,7 @@
 /* =========================
    CONFIG
 ========================= */
-const API_URL = "http://localhost:3001/api";
+const API_URL = "https://backend-production.up.railway.app/api";
 let token = localStorage.getItem("token");
 let campoAtual = null;
 
@@ -27,9 +27,13 @@ document.addEventListener("DOMContentLoaded", function() {
     configurarWhatsappTooltip();
     configurarFAQ();
     configurarMenuHamburguer();
-    aplicarConteudoLocal();
     configurarAdmin();
     configurarCropImagem();
+
+    carregarConteudoBanco().catch(() => {
+        console.warn("Erro ao carregar do banco. Usando conteúdo local.");
+        aplicarConteudoLocal();
+    });
 });
 
 /* =========================
@@ -369,7 +373,7 @@ function aplicarConteudoLocal() {
         document.querySelectorAll("[data-field]").forEach(function(el) {
             const campo = el.dataset.field;
 
-            if (!obj[campo]) return;
+            if (obj[campo] === undefined) return;
 
             if (el.tagName === "IMG") {
                 el.src = obj[campo];
@@ -500,8 +504,6 @@ function configurarAdmin() {
     if (btnCancelarEditor) {
         btnCancelarEditor.addEventListener("click", fecharEditor);
     }
-
-    carregarConteudoBanco();
 
     document.addEventListener("keydown", function(e) {
         const isCtrlOrCmd = e.ctrlKey || e.metaKey;
@@ -667,11 +669,13 @@ async function salvarConteudo() {
         const data = await res.json();
 
         if (!res.ok) {
+            console.error("Erro backend:", data);
             alert(data.message || "Erro ao salvar conteúdo.");
             return;
         }
 
         alert("Conteúdo salvo com sucesso.");
+        await carregarConteudoBanco();
     } catch (error) {
         console.error("Erro ao salvar conteúdo:", error);
         alert("Erro ao salvar conteúdo.");
@@ -681,13 +685,21 @@ async function salvarConteudo() {
 async function carregarConteudoBanco() {
     try {
         const res = await fetch(API_URL + "/site-content");
+
+        if (!res.ok) {
+            throw new Error("Erro ao buscar conteúdo");
+        }
+
         const data = await res.json();
 
-        if (!res.ok || !data) return;
+        if (!data || typeof data !== "object") {
+            throw new Error("Dados inválidos");
+        }
 
         document.querySelectorAll("[data-field]").forEach(function(el) {
             const key = el.dataset.field;
-            if (!data[key]) return;
+
+            if (data[key] === undefined) return;
 
             if (el.tagName === "IMG") {
                 el.src = data[key];
@@ -695,8 +707,11 @@ async function carregarConteudoBanco() {
                 el.textContent = data[key];
             }
         });
+
+        console.log("Conteúdo carregado do banco");
     } catch (error) {
-        console.warn("Conteúdo dinâmico não carregado. Mantendo conteúdo padrão.");
+        console.error("Erro ao carregar conteúdo:", error);
+        throw error;
     }
 }
 
